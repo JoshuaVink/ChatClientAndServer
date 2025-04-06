@@ -3,16 +3,16 @@ import threading
 import socket
 import queue
 
+
 class App:
     def __init__(self, master):
         self.master = master
         master.title("Socket Reader")
 
         self.label_text = tk.StringVar()
-        self.label = tk.Label(master, textvariable = self.label_text)
+        self.label = tk.Label(master, textvariable=self.label_text)
         self.label.pack()
 
-        
         self.data_queue = queue.Queue()
         self.running = True
 
@@ -35,7 +35,7 @@ class App:
                         break
                     self.data_queue.put(data.decode())
         except Exception as e:
-             self.data_queue.put(f"Error: {e}")
+            self.data_queue.put(f"Error: {e}")
 
     def update_gui(self):
         try:
@@ -53,5 +53,5 @@ class App:
 
 root = tk.Tk()
 app = App(root)
-root.protocol("WM_DELETE_WINDOW", app.close) # Handle window close event
+root.protocol("WM_DELETE_WINDOW", app.close)  # Handle window close event
 root.mainloop()
