@@ -3,6 +3,9 @@ import threading
 import socket
 import queue
 
+host = '127.0.0.1'  # Or "localhost"
+port = 5000         # Replace with your port
+
 
 class App:
     def __init__(self, master):
@@ -17,15 +20,15 @@ class App:
         self.running = True
 
         self.socket_thread = threading.Thread(target=self.read_socket)
+        self.socket_thread2 = threading.Thread(target=self.send_message)
         self.socket_thread.daemon = True  # Allow program to exit even if thread is running
+        self.socket_thread2.daemon = True
         self.socket_thread.start()
+        self.socket_thread2.start()
 
         self.update_gui()
 
     def read_socket(self):
-        host = '127.0.0.1'  # Or "localhost"
-        port = 5000         # Replace with your port
-
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((host, port))
@@ -34,6 +37,18 @@ class App:
                     if not data:
                         break
                     self.data_queue.put(data.decode())
+        except Exception as e:
+            self.data_queue.put(f"Error: {e}")
+
+    def send_message(self):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((host, port))
+                while self.running:
+                    message = input("type message here ")
+                    if message == 'exit':
+                        break
+                    s.sendall(message.encode())
         except Exception as e:
             self.data_queue.put(f"Error: {e}")
 
