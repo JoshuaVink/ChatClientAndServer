@@ -21,6 +21,24 @@ class App:
         self.data_queue = queue.Queue()
         self.running = True
 
+        self.chat_log = tk.Text(master, state='disabled', height=15, width=50)
+        self.chat_log.pack()
+
+        self.message_entry = tk.Entry(master, width=40)
+        self.message_entry.pack(side=tk.LEFT, padx=(10, 0))
+        self.message_entry.bind("<Return>", self.send_message)
+
+        self.send_button = tk.Button(master, text="Send", command=self.send_message)
+        self.send_button.pack(side=tk.LEFT)
+
+        # Socket connection
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.socket.connect((host, port))
+        except Exception as e:
+            self.append_message(f"Connection error: {e}")
+            return
+
         self.socket_thread = threading.Thread(target=self.read_socket)
         self.socket_thread2 = threading.Thread(target=self.send_message)
         self.socket_thread.daemon = True  # Allow program to exit even if thread is running
@@ -30,30 +48,31 @@ class App:
 
         self.update_gui()
 
+    def append_message(self, message):
+        self.chat_log.config(state='normal')
+        self.chat_log.insert(tk.END, message + "\n")
+        self.chat_log.config(state='disabled')
+        self.chat_log.yview(tk.END)
+
     def read_socket(self):
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((host, port))
-                while self.running:
-                    data = s.recv(1024)
-                    if not data:
-                        break
-                    self.data_queue.put(data.decode())
+            while self.running:
+                data = self.socket.recv(1024)
+                if not data:
+                    break
+                self.data_queue.put(data.decode())
         except Exception as e:
             self.data_queue.put(f"Error: {e}")
 
-    def send_message(self):
+    def send_message(self, event=None):
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect((host, port))
-                while self.running:
-                    message = input("type message here ")
-                    if message == 'exit':
-                        break
-                    name_msg = (self.name + ": " + message)
-                    s.sendall(name_msg.encode())
+            message = self.message_entry.get().strip()
+            if message:
+                name_msg = (self.name + ": " + message)
+                self.socket.sendall(name_msg.encode())
         except Exception as e:
             self.data_queue.put(f"Error: {e}")
+        self.message_entry.delete(0, tk.END)
 
     def update_gui(self):
         try:
