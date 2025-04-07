@@ -71,13 +71,13 @@ class App:
                 name_msg = (self.name + ": " + message)
                 self.socket.sendall(name_msg.encode())
         except Exception as e:
-            self.data_queue.put(f"Error: {e}")
+            self.append_message(f"Send error: {e}")
         self.message_entry.delete(0, tk.END)
 
     def update_gui(self):
         try:
             data = self.data_queue.get_nowait()
-            self.label_text.set(data)
+            self.append_message(data)
         except queue.Empty:
             pass  # No data yet, ignore
         if self.running:
