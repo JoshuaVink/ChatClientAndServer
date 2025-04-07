@@ -10,7 +10,9 @@ port = 5000         # Replace with your port
 class App:
     def __init__(self, master):
         self.master = master
-        master.title("Socket Reader")
+        self.name = input("Enter your name: ")
+        window_title = ("Client", self.name, "at", port)
+        master.title(window_title)
 
         self.label_text = tk.StringVar()
         self.label = tk.Label(master, textvariable=self.label_text)
@@ -48,7 +50,8 @@ class App:
                     message = input("type message here ")
                     if message == 'exit':
                         break
-                    s.sendall(message.encode())
+                    name_msg = (self.name + ": " + message)
+                    s.sendall(name_msg.encode())
         except Exception as e:
             self.data_queue.put(f"Error: {e}")
 
