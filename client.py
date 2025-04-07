@@ -41,6 +41,10 @@ class App:
         self.chat_log = tk.Text(master, state='disabled', height=15, width=50)
         self.chat_log.pack()
 
+        self.chat_log.tag_config("own", background="#ccffcc", font=("Helvetica", 10, "bold"))
+        self.chat_log.tag_config("other", background="white", font=("Helvetica", 10))
+        self.own_msg = False
+
         # CHANGED: Use Text instead of Entry for multi-line input
         self.message_entry = tk.Text(master, height=3, width=40)
         self.message_entry.pack(side=tk.LEFT, padx=(10, 0))
@@ -56,23 +60,25 @@ class App:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.socket.connect((host, port))
+            connect_msg = f"{self.name} has joined the chat."
+            self.socket.sendall(connect_msg.encode())
         except Exception as e:
             self.append_message(f"Connection error: {e}")
             return
 
         self.socket_thread = threading.Thread(target=self.read_socket)
-        self.socket_thread2 = threading.Thread(target=self.send_message)
         self.socket_thread.daemon = True  # Allow program to exit even if thread is running
-        self.socket_thread2.daemon = True
         self.socket_thread.start()
-        self.socket_thread2.start()
 
         self.update_gui()
 
     def append_message(self, message):
         self.chat_log.config(state='normal')
+
+        tag = "own" if self.own_msg else "other"
+
         message = replace_emojis(message)  # This adds emojis
-        self.chat_log.insert(tk.END, message + "\n")
+        self.chat_log.insert(tk.END, message + "\n", tag)
         self.chat_log.config(state='disabled')
         self.chat_log.yview(tk.END)
 
@@ -89,6 +95,9 @@ class App:
                     continue
 
                 self.data_queue.put(data.decode())
+                self.own_msg = False
+        except ConnectionResetError:
+            self.data_queue.put("The chat server crashed. Please try reconnecting.")
         except Exception as e:
             self.data_queue.put(f"Error: {e}")
 
@@ -98,6 +107,7 @@ class App:
             if message:
                 name_msg = (self.name + ": " + message)
                 self.data_queue.put(message)
+                self.own_msg = True
                 self.socket.sendall(name_msg.encode())
         except Exception as e:
             self.append_message(f"Send error: {e}")
