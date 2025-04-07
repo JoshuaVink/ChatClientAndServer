@@ -60,6 +60,11 @@ class App:
                 data = self.socket.recv(1024)
                 if not data:
                     break
+
+                decoded_data = data.decode()
+                if decoded_data.startswith(self.name + ": "):
+                    continue
+
                 self.data_queue.put(data.decode())
         except Exception as e:
             self.data_queue.put(f"Error: {e}")
@@ -69,6 +74,7 @@ class App:
             message = self.message_entry.get().strip()
             if message:
                 name_msg = (self.name + ": " + message)
+                self.data_queue.put(message)
                 self.socket.sendall(name_msg.encode())
         except Exception as e:
             self.append_message(f"Send error: {e}")
