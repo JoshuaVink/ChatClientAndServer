@@ -6,6 +6,23 @@ import queue
 host = '127.0.0.1'  # Or "localhost"
 port = 5000         # Replace with your port
 
+EMOJI_MAP = {
+    ":)": "😊",
+    ":(": "😢",
+    ":D": "😄",
+    "<3": "❤️",
+    ":P": "😛",
+    ":poop:": "💩",
+    ";)": "😉",
+    ":thumbsup:": "👍",
+    ":fire:": "🔥"
+    }
+
+def replace_emojis(message):
+    for shortcut, emoji in EMOJI_MAP.items():
+        message = message.replace(shortcut, emoji)
+    return message
+
 
 class App:
     def __init__(self, master):
@@ -54,9 +71,11 @@ class App:
 
     def append_message(self, message):
         self.chat_log.config(state='normal')
+        message = replace_emojis(message)  # This adds emojis
         self.chat_log.insert(tk.END, message + "\n")
         self.chat_log.config(state='disabled')
         self.chat_log.yview(tk.END)
+
 
     def read_socket(self):
         try:
@@ -101,7 +120,16 @@ class App:
 
     def close(self):
         self.running = False
-        self.master.destroy()
+        try:
+            disconnect_msg = f"{self.name} has left the chat."
+            self.socket.sendall(disconnect_msg.encode())
+            print(f"{self.name} disconnected.")
+        except:
+            pass  # Ignore errors if socket is already closed
+        finally:
+            self.socket.close()
+            self.master.destroy()
+
 
 
 root = tk.Tk()
