@@ -24,9 +24,13 @@ class App:
         self.chat_log = tk.Text(master, state='disabled', height=15, width=50)
         self.chat_log.pack()
 
-        self.message_entry = tk.Entry(master, width=40)
+        # CHANGED: Use Text instead of Entry for multi-line input
+        self.message_entry = tk.Text(master, height=3, width=40)
         self.message_entry.pack(side=tk.LEFT, padx=(10, 0))
+
+        # NEW: Bind <Return> to send, and <Shift-Return> to newline
         self.message_entry.bind("<Return>", self.send_message)
+        self.message_entry.bind("<Shift-Return>", self.insert_newline)
 
         self.send_button = tk.Button(master, text="Send", command=self.send_message)
         self.send_button.pack(side=tk.LEFT)
@@ -71,14 +75,15 @@ class App:
 
     def send_message(self, event=None):
         try:
-            message = self.message_entry.get().strip()
+            message = self.message_entry.get("1.0", tk.END).strip()
             if message:
                 name_msg = (self.name + ": " + message)
                 self.data_queue.put(message)
                 self.socket.sendall(name_msg.encode())
         except Exception as e:
             self.append_message(f"Send error: {e}")
-        self.message_entry.delete(0, tk.END)
+        self.message_entry.delete("1.0", tk.END)
+        return 'break'  # Prevents a newline when pressing Enter
 
     def update_gui(self):
         try:
@@ -88,6 +93,11 @@ class App:
             pass  # No data yet, ignore
         if self.running:
             self.master.after(100, self.update_gui) # Check every 100 ms
+
+    def insert_newline(self, event=None):
+        self.message_entry.insert(tk.INSERT, "\n")
+        return 'break'  # Prevent default behavior
+
 
     def close(self):
         self.running = False
