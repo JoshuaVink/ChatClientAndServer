@@ -22,7 +22,6 @@ def handleClient(sock, addr):
         print(f"Error with {addr}: {e}")
     finally:
         print(f"Client {addr} disconnected.")
-        clients.remove(sock)
         if sock in clients:
             clients.remove(sock)
         sock.close()
