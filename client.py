@@ -6,7 +6,7 @@ import webbrowser
 import re
 
 host = '127.0.0.1'  # Or "localhost"
-port = 5000         # Replace with your port
+port = 5003         # Replace with your port
 
 EMOJI_MAP = {
     ":)": "😊",
