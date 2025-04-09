@@ -7,32 +7,36 @@ This project is a multi-user group chat application developed in python using TC
 # Our project has 2 Main Components
 
 ## 1. Server
- - Listen on a user defined port
+ - Listen on a user-defined port
  - Accepts incoming clients
  - Sends messages to all clients
- - Sends output when users join and leave (no join yet)
+ - Sends output when users join and leave
  - Supports multiple clients at once
 ## 2. Client
- - Asks user for a username
- - Opens a user friendly application using Tkinter
+ - Asks the user for a username
+ - Opens a user-friendly application using Tkinter
  - displays incoming messages
- - allows to multi-line inputs
+ - allows multi-line inputs
  - runs a thread in the background for incoming messages from the server
  - handles exit when disconnecting
 
-# Team Members Responsibilties
+# Team Members Responsibilities
 ## James
  - Ability to Shift+Enter to allow multiple lines of text
  - Output message when a user leaves the chat
  - Emoji shortcuts for users
- - Documentation and ReadMe.d file
+ - Documentation and ReadMe.md file
 ## Josh
- - Ouput message when a user joins the chat
+ - Added a text box for input and a send button to the GUI
+ - Client function to take input via GUI and send it to the server
+ - tkinter window to display title as name and port number of client
+ - Display messages in the chat box and automatically scroll to the most recent message
+ - Display a message when a user joins the chat
  - URL to clickable links
- - Highlights for messages sent by the client (easier to read messages)
+ - Remove the client's name from their messages and instead highlight them in green
 ## Both
- - Getting starter code working and original tkinter client to open as well as getting the server to work
- - If server terminated abruptly clients terminate gracefully
+ - Getting starter code working and the original tkinter client to open as well as getting the server to work
+ - If the server is terminated abruptly clients terminate gracefully
  - Tested on multiple machines
  - Used our Git repository to add updates and changes to our code
 
