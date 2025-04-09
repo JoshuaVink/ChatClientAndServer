@@ -31,9 +31,10 @@ This project is a multi-user group chat application developed in python using TC
  - URL to clickable links
  - Highlights for messages sent by the client (easier to read messages)
 ## Both
- - Getting starter code working and original tkinter client to open as well as getting server to work
+ - Getting starter code working and original tkinter client to open as well as getting the server to work
  - If server terminated abruptly clients terminate gracefully
  - Tested on multiple machines
+ - Used our Git repository to add updates and changes to our code
 
 ### Git Repository: (make public?)
 https://github.com/JoshuaVink/ChatClientAndServer
