@@ -40,5 +40,5 @@ This project is a multi-user group chat application developed in python using TC
  - Tested on multiple machines
  - Used our Git repository to add updates and changes to our code
 
-### Git Repository: (make public?)
+### Git Repository:
 https://github.com/JoshuaVink/ChatClientAndServer
