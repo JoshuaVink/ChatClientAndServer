@@ -2,6 +2,8 @@ import tkinter as tk
 import threading
 import socket
 import queue
+import webbrowser
+import re
 
 host = '127.0.0.1'  # Or "localhost"
 port = 5000         # Replace with your port
@@ -41,6 +43,8 @@ class App:
         self.chat_log = tk.Text(master, state='disabled', height=15, width=50)
         self.chat_log.pack()
 
+        self.chat_log.tag_config("link", foreground="blue", underline=1)
+        self.chat_log.tag_bind("link", "<Button-1>", self.open_url)
         self.chat_log.tag_config("own", background="#ccffcc", font=("Helvetica", 10, "bold"))
         self.chat_log.tag_config("other", background="white", font=("Helvetica", 10))
         self.own_msg = False
@@ -76,9 +80,21 @@ class App:
         self.chat_log.config(state='normal')
 
         tag = "own" if self.own_msg else "other"
-
         message = replace_emojis(message)  # This adds emojis
-        self.chat_log.insert(tk.END, message + "\n", tag)
+
+        url_pattern = r"(https?://[^\s]+)"
+        parts = re.split(url_pattern, message)
+
+        for part in parts:
+            if re.match(url_pattern, part):
+                start = self.chat_log.index(tk.END)
+                self.chat_log.insert(tk.END, part, ("link", tag))
+                end = self.chat_log.index(tk.END)
+                self.chat_log.tag_add("link", start, end)
+            else:
+                self.chat_log.insert(tk.END, part, tag)
+
+        self.chat_log.insert(tk.END, "\n")
         self.chat_log.config(state='disabled')
         self.chat_log.yview(tk.END)
 
@@ -126,6 +142,16 @@ class App:
     def insert_newline(self, event=None):
         self.message_entry.insert(tk.INSERT, "\n")
         return 'break'  # Prevent default behavior
+
+    def open_url(self, event):
+        idx = self.chat_log.index(f"@{event.x},{event.y}")
+        line_start = self.chat_log.index(f"{idx} linestart")
+        line_end = self.chat_log.index(f"{idx} lineend")
+        text = self.chat_log.get(line_start, line_end)
+
+        match = re.search(r"(https?://[^\s]+)", text)
+        if match:
+            webbrowser.open(match.group(0))
 
 
     def close(self):
