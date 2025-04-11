@@ -2,7 +2,7 @@ import socket
 from threading import Thread
 
 HOST = '127.0.0.1'
-PORT = 5000
+PORT = 5003
 clients = []  # List to keep track of connected clients
 
 
